@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">pre_cours4_android</string>
+    <string name="product_name">Product Name</string>
+    <string name="price">Price</string>
+    <string name="add_product">Add Product</string>
+    <string name="product">Product</string>
+    <string name="total">Total :</string>
+    <string name="show_cart">Show Cart</string>
+</resources>
