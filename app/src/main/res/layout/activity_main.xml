@@ -27,28 +27,28 @@
             android:gravity="center"
             android:orientation="horizontal"
             android:weightSum="1"
-            app:layout_constraintBottom_toTopOf="@+id/but_Add"
+            app:layout_constraintBottom_toTopOf="@+id/but_Connect"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <EditText
-                android:id="@+id/input_Name"
+                android:id="@+id/input_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight=".45"
                 android:fontFamily="sans-serif"
-                android:hint="@string/product_name"
+                android:hint="@string/username"
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
-                android:text="test"
+                android:text="@string/user"
                 android:textSize="18sp"
                 android:typeface="monospace" />
 
             <EditText
-                android:id="@+id/input_Price"
+                android:id="@+id/input_pwd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -56,10 +56,10 @@
                 android:layout_weight=".45"
                 android:fontFamily="sans-serif"
                 android:gravity="center"
-                android:hint="@string/price"
+                android:hint="@string/password"
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
-                android:text="0.0"
+                android:text="@string/pwd"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -68,15 +68,14 @@
 
 
         <Button
-            android:id="@+id/but_Add"
+            android:id="@+id/but_Connect"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
-            android:onClick="AddProd"
-            tools:ignore="OnClick"
-            android:text="@string/add_product"
+            android:onClick="ConnectUser"
+            android:text="@string/Connect_to_MySQL"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ll_input" />
