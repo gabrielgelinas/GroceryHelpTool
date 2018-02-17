@@ -42,8 +42,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         //Download image using picasso library
         if (!TextUtils.isEmpty(product.getProductImageUrl())) {
             Picasso.with(mContext).load(product.getProductImageUrl())
-                    .error(R.drawable.placeholder)
-                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.iga_placeholder)
+                    .placeholder(R.drawable.iga_placeholder)
                     .into(customViewHolder.imageView);
         }
 
@@ -59,7 +59,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             }
         };
 
-        //TODO: Implement LongClick Event
+        //TODO Implement LongClick Event
         View.OnLongClickListener longClickListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

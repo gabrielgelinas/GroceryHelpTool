@@ -9,15 +9,13 @@ class URLBuilder {
     private String prefix;
     private String suffix;
 
-    URLBuilder(String prefix, int page, String suffix) {
+    URLBuilder(String prefix, String suffix) {
         this.prefix = prefix;
-        this.page = page;
         this.suffix = suffix;
     }
 
-
-    String getURL() {
-        return this.prefix + this.page + this.suffix;
+    String getURL(int p_page) {
+        return this.prefix + p_page + this.suffix;
     }
 }
 

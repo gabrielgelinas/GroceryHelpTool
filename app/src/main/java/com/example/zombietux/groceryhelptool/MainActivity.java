@@ -1,5 +1,6 @@
 package com.example.zombietux.groceryhelptool;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -9,41 +10,34 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "GroceryHelpTool";
-    private List<Product> productList;
+    private ArrayList<Product> productList;
     private List<JsonObject> jsonProductList;
     private RecyclerView mRecyclerView;
     private MyRecyclerViewAdapter adapter;
-    private ProgressBar progressBar;
+    private ProgressDialog progress;
     private Pattern pattern;
     private URLBuilder urlBuilder;
 
@@ -57,129 +51,236 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         //TODO Setup ProgressBar
 //        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progress = new ProgressDialog(this);
 
         pattern = Pattern.compile("<div class=\"js-product js-equalized js-addtolist-container js-ga\" data-product=\"(.+?)" + "\"");
-        urlBuilder = new URLBuilder("https://www.iga.net/en/search?page=", 1, "&pageSize=60"); //TODO Loop through pages
-        new DownloadTask().execute();
+        urlBuilder = new URLBuilder("https://www.iga.net/en/search?page=", "&pageSize=60"); //TODO Loop through pages
+
+
+        productList = new ArrayList<>();
+        jsonProductList = new ArrayList<>();
+
+//        ReadJsonFile();
+
+//        new DownloadTask().execute();
 
     }
 
-    private class DownloadTask extends AsyncTask<Void, Void, Integer> {
+    private class DownloadTask extends AsyncTask<Void, Integer, Integer> {
+        int maxpages = 1;
+        private int cnt = 0;
+
         @Override
         protected void onPreExecute() {
-            productList = new ArrayList<>();
-            jsonProductList = new ArrayList<>();
             //TODO Setup ProgressBar
+            progress.setTitle("Fetching Data...");
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setCancelable(false);
+            progress.show();
+
         }
 
         @Override
-        protected void onProgressUpdate(Void... values) {
+        protected void onProgressUpdate(Integer... values) {
             //TODO Setup ProgressBar
 //            super.onProgressUpdate(values);
+            progress.setMessage("Fetching data from page " + values[0] + " out of " + maxpages + ".");
+            progress.setProgress(values[0]);
         }
 
         @Override
         protected Integer doInBackground(Void... voids) {
             Integer result = 0;
+            StringBuilder stringBuilder = null;
+
             //TODO Loop through pages
 
-//            HttpURLConnection urlConnection;
+            PageHTML pageHTML = new PageHTML(urlBuilder.getURL(1));
             try {
-//                URL url = new URL(params[0]);
-//                urlConnection = (HttpURLConnection) url.openConnection();
-//                int statusCode = urlConnection.getResponseCode();
-                URL url = new URL(urlBuilder.getURL());
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                //TODO Check if necessary :
-//                urlConnection.setRequestMethod("GET");
-                //
+                ArrayList<Object> results = pageHTML.getHTML();
+                if (((boolean) results.get(0))) {
+                    maxpages = GetMaxPages((StringBuilder) results.get(1));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-                int statusCode = urlConnection.getResponseCode(); // 200 = HTTP OK
-                if (statusCode == 200) {
-//                    BufferedReader r = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-//                    StringBuilder response = new StringBuilder();
-//                    String line;
-//                    while ((line = r.readLine()) != null) {
-//                        response.append(line);
+            for (int i = 1; i <= maxpages; i++) {
+//                try {
+//                    URL url = new URL(urlBuilder.getURL());
+//                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//
+//                    //TODO Check if necessary
+////                      urlConnection.setRequestMethod("GET");
+//                    //
+//
+//                    int statusCode = urlConnection.getResponseCode(); // 200 = HTTP OK
+//                    if (statusCode == 200) {
+//
+//                        BufferedReader bufferedReader = new BufferedReader(
+//                                new InputStreamReader(urlConnection.getInputStream())
+//                        );
+//
+//                        String inputLine;
+//                        stringBuilder = new StringBuilder();
+//
+//                        while ((inputLine = bufferedReader.readLine()) != null) {
+//                            stringBuilder.append(inputLine); // .append("\n") ???
+//                        }
+//                        bufferedReader.close();
+//
+//                        result = 1; //"Successful";
+//                    } else {
+//                        result = 0; //"Failed to fetch data!";
 //                    }
-
-                    BufferedReader bufferedReader = new BufferedReader(
-                            new InputStreamReader(urlConnection.getInputStream())
-                    );
-
-                    String inputLine;
-                    StringBuilder stringBuilder = new StringBuilder();
-
-                    while ((inputLine = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(inputLine); // .append("\n") ???
+//                } catch (Exception e) {
+//                    Log.d(TAG, e.getLocalizedMessage());
+//                }
+                pageHTML = new PageHTML(urlBuilder.getURL(i));
+                try {
+                    ArrayList<Object> results = pageHTML.getHTML();
+                    if (((boolean) results.get(0))) {
+                        parseResult((StringBuilder) results.get(1));
+                        result = 1;
+                    } else {
+                        result = 0;
                     }
-                    bufferedReader.close();
-
-                    parseResult(stringBuilder);
-                    result = 1; // Successful
-                } else {
-                    result = 0; //"Failed to fetch data!";
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    result = 0;
                 }
 
-            } catch (Exception e) {
-                Log.d(TAG, e.getLocalizedMessage());
+
+                Integer int_i = i;
+                Integer int_maxpages = maxpages;
+
+                Double dbl_i = int_i.doubleValue();
+                Double dbl_maxpages = int_maxpages.doubleValue();
+
+                Double dbl_progress = dbl_i / dbl_maxpages * 100;
+
+                publishProgress(dbl_progress.intValue());
+                System.out.println("Page " + i + " done with " + cnt + " products...........................................");
             }
             return result; //"Failed to fetch data!";
         }
 
         @Override
         protected void onPostExecute(Integer result) {
+            //TODO Setup ProgressBar
+            progress.dismiss();
 //            progressBar.setVisibility(View.GONE);
 
             if (result == 1) {
-                adapter = new MyRecyclerViewAdapter(MainActivity.this, productList);
-                mRecyclerView.setAdapter(adapter);
-                adapter.setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(Product product) {
-                        Toast.makeText(MainActivity.this, product.getName(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+
+                setAdater();
 
             } else {
                 Toast.makeText(MainActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
             }
         }
-    }
 
-    private void parseResult(StringBuilder result) {
-        Matcher matcher = pattern.matcher(result.toString());
-        int cnt = 0;
-        while (matcher.find()) {
-            Gson gson = new Gson();
-            JsonObject jsonObject = (new JsonParser().parse(matcher.group(1)).getAsJsonObject());
-            Product product = gson.fromJson(jsonObject, Product.class);
-            productList.add(product);
-            jsonProductList.add(jsonObject);
-            System.out.println(matcher.group(1));
-            cnt++;
+        private void parseResult(StringBuilder result) {
+            Matcher matcher = pattern.matcher(result.toString());
+            while (matcher.find()) {
+                Gson gson = new Gson();
+                JsonObject jsonObject = (new JsonParser().parse(matcher.group(1)).getAsJsonObject());
+                Product product = gson.fromJson(jsonObject, Product.class);
+                productList.add(product);
+                jsonProductList.add(jsonObject);
+//                System.out.println(matcher.group(1));
+                cnt++;
+            }
+
         }
 
-        WriteJSON();
-        System.out.println("Page " + "" + " done with " + cnt + " products...........................................");
+        private int GetMaxPages(StringBuilder pageHTML) {
+            Integer maxpage = 1;
+
+            Pattern mPattern = Pattern.compile("<p>\\n\\s*(.+?)\\s+?match");
+            Matcher mMatcher = mPattern.matcher(pageHTML);
+
+            while (mMatcher.find()) {
+                maxpage = (Integer.parseInt(mMatcher.group(1)) / 60);
+                System.out.println(maxpage);
+            }
+
+            return maxpage;
+        }
+
+        private class PageHTML {
+            String urlstring;
+
+            PageHTML(String urlstring) {
+                this.urlstring = urlstring;
+            }
+
+            ArrayList<Object> getHTML() throws IOException {
+                StringBuilder stringBuilder = null;
+                boolean successful;
+
+                URL url = new URL(urlstring);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+                //TODO Check if necessary
+                urlConnection.setRequestMethod("GET");
+                //
+
+                int statusCode = urlConnection.getResponseCode(); // 200 = HTTP OK
+                if (statusCode == 200) {
+
+                    BufferedReader bufferedReader = new BufferedReader(
+                            new InputStreamReader(urlConnection.getInputStream())
+                    );
+
+                    String inputLine;
+                    stringBuilder = new StringBuilder();
+
+                    while ((inputLine = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(inputLine).append("\n"); // .append("\n") ???
+                    }
+                    bufferedReader.close();
+
+                    successful = true;
+                } else {
+                    successful = false;
+                }
+
+                ArrayList<Object> results = new ArrayList<>();
+                results.add(successful);
+                results.add(stringBuilder);
+                return results;
+            }
+        }
+    }
+
+    public void setAdater(){
+        adapter = new MyRecyclerViewAdapter(MainActivity.this, productList);
+        mRecyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(Product product) {
+                Toast.makeText(MainActivity.this, product.getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    public void ShowCartClick(View view) {
+        ReadJsonFile();
     }
 
     public void ConnectUser(View view) {
-        EditText txtUser;
-        EditText txtPwd;
+        WriteJSON();
+        SendToDatabase();
+    }
 
-        txtUser = (EditText) findViewById(R.id.input_username);
-        txtPwd = (EditText) findViewById(R.id.input_pwd);
+    public void SendToDatabase() {
 
-        String user = txtUser.getText().toString();
-        String pwd = txtPwd.getText().toString();
-
-        DatabaseWorker databaseWorker = new DatabaseWorker(this);
-
-        databaseWorker.execute(user, pwd);
-
-
-        ReadJsonFile();
+        for (Product product :
+                productList) {
+            new DatabaseWorker(this, "http://192.168.0.105/AndroidToMySQL/dbwrite.php").execute(product);
+        }
     }
 
     public void WriteJSON() {
@@ -215,14 +316,14 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("file.toString() = " + file.toString());
+//        System.out.println("file.toString() = " + file.toString());
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file, true);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
             for (JsonObject j :
                     jsonProductList) {
-                outputStreamWriter.write(j.toString());
-                outputStreamWriter.write("\n");
+                outputStreamWriter.write(j.toString() + "\n");
+//                outputStreamWriter.append("\n");
             }
             outputStreamWriter.close();
         } catch (Exception e) {
@@ -239,21 +340,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void ReadJsonFile() {
-        File ppath = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        productList = new ArrayList<>();
+        jsonProductList = new ArrayList<>();
+
         String inputLine;
-        StringBuilder stringBuilder = new StringBuilder();
 
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(ppath + "/iga_data.json"));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS + "/iga_data.json")));
             while ((inputLine = bufferedReader.readLine()) != null) {
-                stringBuilder.append(inputLine).append("\n"); // .append("\n") ???
-                System.out.println(inputLine);
+                Gson gson = new Gson();
+                JsonObject jsonObject = (new JsonParser().parse(inputLine).getAsJsonObject());
+                Product product = gson.fromJson(jsonObject, Product.class);
+                productList.add(product);
+                jsonProductList.add(jsonObject);
             }
-//            System.out.println(stringBuilder);
             bufferedReader.close();
+
+            setAdater();
         } catch (Exception e) {
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
+
+        System.out.println("productList size = " + productList.size());
     }
 
     public File getAlbumStorageDir(String albumName) {
