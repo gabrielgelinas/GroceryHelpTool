@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        ReadJsonFile();
 
-//        new DownloadTask().execute();
+        new DownloadTask().execute();
 
     }
 
@@ -105,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            for (int i = 1; i <= maxpages; i++) {
+//            maxpages = 1;
+            for (int i = 369; i <= maxpages; i++) {
 //                try {
 //                    URL url = new URL(urlBuilder.getURL());
 //                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -201,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             Matcher mMatcher = mPattern.matcher(pageHTML);
 
             while (mMatcher.find()) {
-                maxpage = (Integer.parseInt(mMatcher.group(1)) / 60);
+                maxpage = (Integer.parseInt(mMatcher.group(1)) / 60)+1;
                 System.out.println(maxpage);
             }
 
@@ -271,15 +272,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ConnectUser(View view) {
-        WriteJSON();
         SendToDatabase();
+        WriteJSON();
     }
 
     public void SendToDatabase() {
 
         for (Product product :
                 productList) {
-            new DatabaseWorker(this, "http://192.168.0.105/AndroidToMySQL/dbwrite.php").execute(product);
+            DatabaseWorker databaseWorker = new DatabaseWorker(this, "http://192.168.0.134/AndroidToMySQL/dbwrite.php");
+            databaseWorker.execute(product);
         }
     }
 
