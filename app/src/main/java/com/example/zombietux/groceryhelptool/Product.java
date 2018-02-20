@@ -56,8 +56,23 @@ public class Product {
         cnt++;
     }
 
-    public String getProductId() {
-        if (ProductId==null) ProductId = "";
+    void CleanString() {
+        try {
+            this.ProductId = (ProductId != null) ? ProductId.trim() : "";
+            this.FullDisplayName = (FullDisplayName != null) ? FullDisplayName.trim() : "";
+            this.BrandName = (BrandName != null) ? BrandName.trim() : "";
+            this.SizeLabel = (SizeLabel != null) ? SizeLabel.trim() : "";
+            this.Size = (Size != null) ? Size.trim() : "";
+            this.ProductUrl = (ProductUrl != null) ? ProductUrl.trim() : "";
+            this.ProductImageUrl = (ProductImageUrl != null) ? ProductImageUrl.trim() : "";
+            this.PromotionName = (PromotionName != null) ? PromotionName.trim() : "";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    String getProductId() {
+        if (ProductId == null) ProductId = "";
         return ProductId;
     }
 
@@ -66,7 +81,7 @@ public class Product {
     }
 
     public String getName() {
-        if (FullDisplayName==null) FullDisplayName = "";
+        if (FullDisplayName == null) FullDisplayName = "";
         return FullDisplayName;
     }
 
@@ -74,8 +89,8 @@ public class Product {
         FullDisplayName = name;
     }
 
-    public String getBrandName() {
-        if (BrandName==null) BrandName = "";
+    String getBrandName() {
+        if (BrandName == null) BrandName = "";
         return BrandName;
     }
 
@@ -83,8 +98,8 @@ public class Product {
         BrandName = brandName;
     }
 
-    public Boolean getAgeRequired() {
-        if (IsAgeRequired==null) IsAgeRequired = false;
+    Boolean getAgeRequired() {
+        if (IsAgeRequired == null) IsAgeRequired = false;
         return IsAgeRequired;
     }
 
@@ -92,8 +107,8 @@ public class Product {
         IsAgeRequired = ageRequired;
     }
 
-    public String getSizeLabel() {
-        if (SizeLabel==null) SizeLabel = "";
+    String getSizeLabel() {
+        if (SizeLabel == null) SizeLabel = "";
         return SizeLabel;
     }
 
@@ -101,8 +116,8 @@ public class Product {
         SizeLabel = sizeLabel;
     }
 
-    public String getSize() {
-        if (ProductId==null) ProductId = "";
+    String getSize() {
+        if (ProductId == null) ProductId = "";
         return Size;
     }
 
@@ -110,8 +125,8 @@ public class Product {
         Size = size;
     }
 
-    public String getProductUrl() {
-        if (ProductUrl==null) ProductUrl = "";
+    String getProductUrl() {
+        if (ProductUrl == null) ProductUrl = "";
         return ProductUrl;
     }
 
@@ -119,8 +134,8 @@ public class Product {
         ProductUrl = productUrl;
     }
 
-    public String getProductImageUrl() {
-        if (ProductImageUrl==null) ProductImageUrl = "";
+    String getProductImageUrl() {
+        if (ProductImageUrl == null) ProductImageUrl = "";
         return ProductImageUrl;
     }
 
@@ -128,8 +143,8 @@ public class Product {
         ProductImageUrl = productImageUrl;
     }
 
-    public Boolean getHasNewPrice() {
-        if (HasNewPrice==null) HasNewPrice = false;
+    Boolean getHasNewPrice() {
+        if (HasNewPrice == null) HasNewPrice = false;
         return HasNewPrice;
     }
 
@@ -138,7 +153,7 @@ public class Product {
     }
 
     Double getRegularPrice() {
-        if (RegularPrice==null) RegularPrice = 0.0;
+        if (RegularPrice == null) RegularPrice = 0.0;
         return RegularPrice;
     }
 
@@ -146,8 +161,8 @@ public class Product {
         RegularPrice = regularPrice;
     }
 
-    public String getPromotionName() {
-        if (PromotionName==null) PromotionName = "";
+    String getPromotionName() {
+        if (PromotionName == null) PromotionName = "";
         return PromotionName;
     }
 
@@ -155,8 +170,8 @@ public class Product {
         PromotionName = promotionName;
     }
 
-    public Double getSalesPrice() {
-        if (SalesPrice==null) SalesPrice = 0.0;
+    Double getSalesPrice() {
+        if (SalesPrice == null) SalesPrice = 0.0;
         return SalesPrice;
     }
 

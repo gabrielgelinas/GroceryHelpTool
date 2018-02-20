@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GroceryHelpTool.iml" filepath="$PROJECT_DIR$/GroceryHelpTool.iml" />
+      <module fileurl="file://D:\git_repos_laptop\GroceryHelpTool\GroceryHelpTool.iml" filepath="D:\git_repos_laptop\GroceryHelpTool\GroceryHelpTool.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

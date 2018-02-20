@@ -10,4 +10,8 @@
     <string name="pwd">123456</string>
     <string name="user">test</string>
     <string name="username">Username</string>
+    <string name="jsonread">JsonRead</string>
+    <string name="jsonwrite">JsonWrite</string>
+    <string name="test">Test</string>
+    <string name="webdata">WebData</string>
 </resources>

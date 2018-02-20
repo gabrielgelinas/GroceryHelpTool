@@ -27,7 +27,6 @@
             android:gravity="center"
             android:orientation="horizontal"
             android:weightSum="1"
-            app:layout_constraintBottom_toTopOf="@+id/but_Connect"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -66,19 +65,61 @@
                 android:typeface="monospace" />
         </LinearLayout>
 
-
-        <Button
-            android:id="@+id/but_Connect"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/ll_ButtonBox"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:onClick="ConnectUser"
-            android:text="@string/Connect_to_MySQL"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ll_input" />
+            app:layout_constraintTop_toBottomOf="@id/ll_input" >
+
+
+            <Button
+                android:id="@+id/but_WebData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="WebData"
+                android:text="@string/webdata"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_input" />
+
+            <Button
+                android:id="@+id/but_JsonRead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="JsonRead"
+                android:text="@string/jsonread"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_input" />
+
+            <Button
+                android:id="@+id/but_JsonWrite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="JsonWrite"
+                android:text="@string/jsonwrite"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_input" />
+
+            <Button
+                android:id="@+id/but_test"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="Test"
+                android:text="@string/test"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_input" />
+
+
+
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 

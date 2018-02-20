@@ -5,16 +5,19 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -36,10 +40,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Product> productList;
     private List<JsonObject> jsonProductList;
     private RecyclerView mRecyclerView;
-    private MyRecyclerViewAdapter adapter;
     private ProgressDialog progress;
     private Pattern pattern;
     private URLBuilder urlBuilder;
+    private ProductOrder productOrder;
+    private ArrayList<ProductOrder> cart;
+
 
 
     @Override
@@ -48,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         //TODO Setup ProgressBar
 //        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progress = new ProgressDialog(this);
@@ -56,14 +64,47 @@ public class MainActivity extends AppCompatActivity {
         pattern = Pattern.compile("<div class=\"js-product js-equalized js-addtolist-container js-ga\" data-product=\"(.+?)" + "\"");
         urlBuilder = new URLBuilder("https://www.iga.net/en/search?page=", "&pageSize=60"); //TODO Loop through pages
 
-
         productList = new ArrayList<>();
         jsonProductList = new ArrayList<>();
 
-//        ReadJsonFile();
+        cart = new ArrayList<>();
 
+        //Hide user Input
+        LinearLayout userInputs = (LinearLayout) findViewById(R.id.ll_input);
+        userInputs.setVisibility(View.GONE);
+    }
+
+    public void JsonWrite(View view) {
+        jsonProductList = new ArrayList<>();
+        for (Product p :
+                productList) {
+            p.CleanString();
+            jsonProductList.add(ProductToJson(p));
+        }
+        WriteToJsonFile();
+    }
+
+    public void JsonRead(View view) {
+        ReadJsonFile();
+    }
+
+    public void WebData(View view) {
         new DownloadTask().execute();
+    }
 
+    public void Test(View view) {
+        SendToDatabase();
+    }
+
+    public void ShowCartClick() {
+        TextView total = (TextView) findViewById(R.id.txtTotal);
+        Double totalprice = 0.0;
+        for (ProductOrder order :
+                cart) {
+            System.out.println("order.getPrice() : " + order.getPrice() + "    order.getQte() : " + order.getQte());
+            totalprice += order.getPrice()*order.getQte();
+        }
+        total.setText(totalprice.toString());
     }
 
     private class DownloadTask extends AsyncTask<Void, Integer, Integer> {
@@ -174,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (result == 1) {
 
-                setAdater();
+                setAdapter();
 
             } else {
                 Toast.makeText(MainActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
@@ -202,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
             Matcher mMatcher = mPattern.matcher(pageHTML);
 
             while (mMatcher.find()) {
-                maxpage = (Integer.parseInt(mMatcher.group(1)) / 60)+1;
+                maxpage = (Integer.parseInt(mMatcher.group(1)) / 60) + 1;
                 System.out.println(maxpage);
             }
 
@@ -255,25 +296,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setAdater(){
-        adapter = new MyRecyclerViewAdapter(MainActivity.this, productList);
+    public void setAdapter() {
+        MyRecyclerViewAdapter adapter = new MyRecyclerViewAdapter(MainActivity.this, productList);
         mRecyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(Product product) {
                 Toast.makeText(MainActivity.this, product.getName(), Toast.LENGTH_SHORT).show();
+
+                cart.add(new ProductOrder(product,1,product.getRegularPrice()));
+                ShowCartClick();
             }
         });
-    }
-
-
-    public void ShowCartClick(View view) {
-        ReadJsonFile();
-    }
-
-    public void ConnectUser(View view) {
-        SendToDatabase();
-        WriteJSON();
     }
 
     public void SendToDatabase() {
@@ -285,7 +319,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void WriteJSON() {
+    public JsonObject ProductToJson(Product product) {
+        Gson gson = new Gson();
+        return (new JsonParser().parse(gson.toJson(product, Product.class)).getAsJsonObject());
+    }
+
+    public void WriteToJsonFile() {
 //        setName();
 //        createJSONFolder();
 //        CompositionJso obj = new CompositionJso();
@@ -354,11 +393,11 @@ public class MainActivity extends AppCompatActivity {
                 JsonObject jsonObject = (new JsonParser().parse(inputLine).getAsJsonObject());
                 Product product = gson.fromJson(jsonObject, Product.class);
                 productList.add(product);
-                jsonProductList.add(jsonObject);
+//                jsonProductList.add(jsonObject);
             }
             bufferedReader.close();
 
-            setAdater();
+            setAdapter();
         } catch (Exception e) {
 //            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
